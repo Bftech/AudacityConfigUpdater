@@ -6,3 +6,5 @@ AudacityConfigUpdater\.code-workspace
 build/
 
 dist/
+
+venv/
