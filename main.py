@@ -2,28 +2,34 @@ import configparser
 import requests
 import logging
 import os, sys
+import PySimpleGUI as sg
 
-remote_config_url = "https://raw.githubusercontent.com/Bftech/AudacityConfigUpdater/dev/remote_configs/ANA.cfg"
-
-platform = sys.platform
-if platform == 'win32' or platform == 'cygwin':
-    local_config_path = os.getenv('APPDATA') + "\\audacity\\audacity.cfg"  # TODO : A verifier
-elif platform == 'linux':
-    local_config_path = "~/.audacity-data/audacity.cfg"
+APP_NAME = "Adacity Config Updater"
+REMOTE_CONFIG_URL = "https://raw.githubusercontent.com/Bftech/AudacityConfigUpdater/dev/remote_configs/ANA.cfg"
 
 
-def writeConfig():
+def getOSConfigPath(platform):
+    if platform == 'win32' or platform == 'cygwin':
+        local_config_path = os.getenv('APPDATA') + "\\audacity\\audacity.cfg"  # TODO : A verifier
+    elif platform == 'linux':
+        local_config_path = os.getenv('HOME') + "/.audacity-data/audacity.cfg"
+
+    return local_config_path
+
+def UpdateConfig(path, remote_cfg):
     try:
         config = configparser.ConfigParser()
-        logging.log(logging.INFO, "Fetching remote cfg...")
-        remote_config = requests.get(remote_config_url).text
+        config.read_string(requests.get(remote_cfg).text)
+        logging.info("Fetching remote cfg...")
         
-        config.read_string(remote_config)
-
-        with open(local_config_path, 'w') as configfile:
+        with open(path, 'w') as configfile:
             config.write(configfile)
-            logging.log(logging.info, "Local cfg updated")
+            logging.info("Local cfg updated")
+            sg.Popup(APP_NAME, 'La configuration d\'Audacity a été mise avec succès.') 
 
     except requests.exceptions.RequestException as e:
         # NO INTERNET !
-        logging.log(logging.ERROR, "No remote cfg")
+        logging.error("No remote cfg")
+        sg.Popup(APP_NAME, 'Impossible de mettre à jour la configuration, serveur injoignable.')  
+
+UpdateConfig(getOSConfigPath(sys.platform), REMOTE_CONFIG_URL)
