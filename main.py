@@ -25,7 +25,7 @@ def UpdateConfig(path, remote_cfg):
         with open(path, 'w') as configfile:
             config.write(configfile)
             logging.info("Local cfg updated")
-            sg.Popup(APP_NAME, 'La configuration d\'Audacity a été mise avec succès.') 
+            sg.Popup(APP_NAME, 'La configuration d\'Audacity a été mise à jour avec succès.') 
 
     except requests.exceptions.RequestException as e:
         # NO INTERNET !
